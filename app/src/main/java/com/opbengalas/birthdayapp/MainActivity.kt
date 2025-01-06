@@ -20,28 +20,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.opbengalas.birthdayapp.components.AppNavigator
 import com.opbengalas.birthdayapp.components.BottomNavigationBar
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import com.opbengalas.birthdayapp.ui.theme.BirthdayAppTheme
 import com.opbengalas.birthdayapp.ui.theme.Red
 import com.opbengalas.birthdayapp.ui.theme.White
-import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
-import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app = application as BirthdayApp
-        val repository = app.repository
 
         setContent {
             BirthdayAppTheme {
-                val birthdayViewModel: BirthdayViewModel = viewModel(
-                    factory = BirthdayViewModelFactory(repository)
-                )
-                val searchQuery = remember { mutableStateOf("") } // Manejando el estado aquí
+                val birthdayViewModel: BirthdayViewModel = hiltViewModel()
+                val searchQuery = remember { mutableStateOf("") }
                 val selectedTab = remember { mutableStateOf(0) }
 
                 Scaffold(

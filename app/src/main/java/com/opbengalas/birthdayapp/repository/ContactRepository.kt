@@ -4,7 +4,6 @@ import com.opbengalas.birthdayapp.dao.ContactDao
 import com.opbengalas.birthdayapp.models.Contact
 import kotlinx.coroutines.flow.Flow
 
-
 class ContactRepository(private val contactDao: ContactDao) {
 
     val allContacts: Flow<List<Contact>> = contactDao.getAllContacts()

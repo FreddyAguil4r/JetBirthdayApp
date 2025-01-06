@@ -4,14 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.opbengalas.birthdayapp.models.Contact
 import com.opbengalas.birthdayapp.repository.ContactRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import javax.inject.Inject
 
-class BirthdayViewModel(private val repository: ContactRepository) : ViewModel() {
+@HiltViewModel
+class BirthdayViewModel @Inject constructor(private val repository: ContactRepository) :
+    ViewModel() {
 
     private val _listContact = MutableStateFlow<List<Contact>>(emptyList())
     val listContact: StateFlow<List<Contact>> get() = _listContact
