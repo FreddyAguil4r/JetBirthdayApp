@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.opbengalas.birthdayapp.components.AppNavigator
+import com.opbengalas.birthdayapp.navigation.AppNavigator
 import com.opbengalas.birthdayapp.ui.theme.BirthdayAppTheme
 import androidx.navigation.compose.rememberNavController
 import com.opbengalas.birthdayapp.components.AppBottomNavigationBar

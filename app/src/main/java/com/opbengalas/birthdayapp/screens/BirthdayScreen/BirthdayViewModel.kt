@@ -55,6 +55,7 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
     fun deleteContact(contact: Contact) {
         viewModelScope.launch {
             repository.delete(contact)
+            _listContact.value = _listContact.value.filter { it.id != contact.id }
         }
     }
 

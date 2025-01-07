@@ -1,6 +1,6 @@
 package com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen
 
-import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,18 +19,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.opbengalas.birthdayapp.models.Contact
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun ContactDetailScreen(
-    name: String,
-    date: String,
-    description: String,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    val decodedName = Uri.decode(name)
-    val decodedDate = Uri.decode(date)
-    val decodedDescription = Uri.decode(description)
+fun ContactDetailScreen(contact: Contact, navController: NavHostController) {
+    val birthdayViewModel: BirthdayViewModel = hiltViewModel()
 
     Column(
         modifier = Modifier
@@ -40,51 +37,53 @@ fun ContactDetailScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "$decodedName",
+            text = contact.name,
             style = MaterialTheme.typography.headlineMedium,
             color = Color.Black
         )
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Date:",
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 color = Color.Gray
             )
             Text(
-                text = decodedDate,
+                text = contact.birthdayDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black
             )
         }
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Description:",
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 color = Color.Gray
             )
             Text(
-                text = decodedDescription,
+                text = contact.description,
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 color = Color.Black
             )
         }
         Spacer(modifier = Modifier.weight(1f))
         Button(
-            onClick = onEdit,
+            onClick = { },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
         ) {
-            Text("Editar", style = MaterialTheme.typography.bodyLarge)
+            Text("Editar", style = MaterialTheme.typography.bodyLarge, color = Color.White)
         }
         Button(
-            onClick = onDelete,
+            onClick = {
+                if (contact.id != 0) {
+                    birthdayViewModel.deleteContact(contact)
+                    navController.popBackStack()
+                } else {
+                    Log.e("DeleteError", "Contact ID is invalid")
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -94,4 +93,6 @@ fun ContactDetailScreen(
         }
     }
 }
+
+
 

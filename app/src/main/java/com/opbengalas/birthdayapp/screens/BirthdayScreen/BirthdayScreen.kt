@@ -77,17 +77,7 @@ fun BirthdayScreen(
                             ),
                             description = birthday.description,
                             modifier = Modifier.clickable {
-                                navController.navigate(
-                                    "contact_detail/${Uri.encode(birthday.name)}/${
-                                        Uri.encode(
-                                            birthday.birthdayDate.format(
-                                                DateTimeFormatter.ofPattern(
-                                                    "dd/MM/yyyy"
-                                                )
-                                            )
-                                        )
-                                    }/${Uri.encode(birthday.description)}"
-                                )
+                                navController.navigate("contact_detail/${birthday.id}")
                             }
                         )
                     }
