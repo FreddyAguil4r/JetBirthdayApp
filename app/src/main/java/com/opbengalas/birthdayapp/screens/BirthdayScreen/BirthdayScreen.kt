@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.AddContactDialog
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.ContactCard
@@ -33,10 +34,9 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun BirthdayScreen(
-    birthdayViewModel: BirthdayViewModel,
     navController: NavController,
-    searchQuery: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    birthdayViewModel: BirthdayViewModel = hiltViewModel()
 ) {
     val birthdays by birthdayViewModel.listContact.collectAsState()
     val name by birthdayViewModel.name.collectAsState()

@@ -52,6 +52,12 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
         _description.value = newDescription
     }
 
+    fun deleteContact(contact: Contact) {
+        viewModelScope.launch {
+            repository.delete(contact)
+        }
+    }
+
     fun addBirthdayFromInput() {
         if (_name.value.isNotBlank() && _date.value.isNotBlank()) {
             try {

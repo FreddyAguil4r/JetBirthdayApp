@@ -48,14 +48,14 @@ fun AddContactDialog(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     TextField(
-                        value = description, // Muestra la descripción
-                        onValueChange = onDescriptionChange, // Callback para actualizar
+                        value = description,
+                        onValueChange = onDescriptionChange,
                         label = { Text("Description") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp), // Asegura un cuadro de texto más grande
-                        maxLines = 5, // Limita el número de líneas visibles
-                        singleLine = false // Permite líneas múltiples
+                            .height(150.dp),
+                        maxLines = 5,
+                        singleLine = false
                     )
                 }
             },
