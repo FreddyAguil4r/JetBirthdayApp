@@ -20,6 +20,9 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
     private val _listContact = MutableStateFlow<List<Contact>>(emptyList())
     val listContact: StateFlow<List<Contact>> get() = _listContact
 
+    private val _sortedContacts = MutableStateFlow<List<Contact>>(emptyList())
+    val sortedContacts: StateFlow<List<Contact>> get() = _sortedContacts
+
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> get() = _name
 
@@ -36,6 +39,7 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
         viewModelScope.launch {
             repository.allContacts.collect { contacts ->
                 _listContact.value = contacts
+                updateSortedContacts()
             }
         }
     }
@@ -56,6 +60,12 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
         viewModelScope.launch {
             repository.delete(contact)
             _listContact.value = _listContact.value.filter { it.id != contact.id }
+        }
+    }
+
+    fun updateContact(contact: Contact) {
+        viewModelScope.launch {
+            repository.update(contact)
         }
     }
 
@@ -80,15 +90,16 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
         }
     }
 
+    private fun updateSortedContacts() {
+        _sortedContacts.value = if (isAscending) {
+            _listContact.value.sortedBy { it.birthdayDate }
+        } else {
+            _listContact.value.sortedByDescending { it.birthdayDate }
+        }
+    }
+
     fun toggleSortOrder() {
         isAscending = !isAscending
-        viewModelScope.launch {
-            val sortedContacts = if (isAscending) {
-                _listContact.value.sortedBy { it.birthdayDate }
-            } else {
-                _listContact.value.sortedByDescending { it.birthdayDate }
-            }
-            _listContact.value = sortedContacts
-        }
+        updateSortedContacts()
     }
 }

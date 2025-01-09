@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.opbengalas.birthdayapp.models.Contact
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -65,9 +69,13 @@ fun ContactDetailScreen(contact: Contact, navController: NavHostController) {
                 color = Color.Black
             )
         }
+
         Spacer(modifier = Modifier.weight(1f))
+
         Button(
-            onClick = { },
+            onClick = {
+                navController.navigate("edit_contact/${contact.id}")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -89,7 +97,53 @@ fun ContactDetailScreen(contact: Contact, navController: NavHostController) {
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
-            Text("Eliminar", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text("Eliminate", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun EditContactScreen(contact: Contact, navController: NavHostController) {
+    val birthdayViewModel: BirthdayViewModel = hiltViewModel()
+    val (name, setName) = remember { mutableStateOf(contact.name) }
+    val (date, setDate) = remember { mutableStateOf(contact.birthdayDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))) }
+    val (description, setDescription) = remember { mutableStateOf(contact.description) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = name,
+            onValueChange = setName,
+            label = { Text("Name") }
+        )
+        OutlinedTextField(
+            value = date,
+            onValueChange = setDate,
+            label = { Text("Birthday Date") }
+        )
+        OutlinedTextField(
+            value = description,
+            onValueChange = setDescription,
+            label = { Text("Description") }
+        )
+        Button(
+            onClick = {
+                val updatedContact = contact.copy(
+                    name = name,
+                    birthdayDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    description = description
+                )
+                birthdayViewModel.updateContact(updatedContact)
+                navController.popBackStack()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Guardar", color = Color.White)
         }
     }
 }

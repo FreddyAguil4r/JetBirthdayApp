@@ -24,8 +24,8 @@ import com.opbengalas.birthdayapp.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar(navController: NavController) {
-    val birthdayViewModel: BirthdayViewModel = hiltViewModel()
+fun AppTopBar(navController: NavController, birthdayViewModel: BirthdayViewModel) {
+
     val searchQuery = remember { mutableStateOf("") }
 
     TopAppBar(
@@ -33,9 +33,9 @@ fun AppTopBar(navController: NavController) {
             SearchBar(
                 query = searchQuery.value,
                 onQueryChange = { searchQuery.value = it },
-                onSearch = {  },
+                onSearch = { },
                 active = false,
-                onActiveChange = {  },
+                onActiveChange = { },
                 placeholder = { Text("Search contacts") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -56,3 +56,4 @@ fun AppTopBar(navController: NavController) {
         )
     )
 }
+

@@ -1,6 +1,5 @@
 package com.opbengalas.birthdayapp.screens.BirthdayScreen
 
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,9 +35,9 @@ import java.time.format.DateTimeFormatter
 fun BirthdayScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    birthdayViewModel: BirthdayViewModel = hiltViewModel()
+    birthdayViewModel: BirthdayViewModel,
 ) {
-    val birthdays by birthdayViewModel.listContact.collectAsState()
+    val birthdays by birthdayViewModel.sortedContacts.collectAsState()
     val name by birthdayViewModel.name.collectAsState()
     val date by birthdayViewModel.date.collectAsState()
     val description by birthdayViewModel.description.collectAsState()
