@@ -68,7 +68,13 @@ fun PersonalContactNotifierScreen(
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Text(
-                                text = "Birthday: ${contact.birthdayDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}",
+                                text = "Birthday: ${
+                                    contact.birthdayDate.format(
+                                        DateTimeFormatter.ofPattern(
+                                            "dd/MM/yyyy"
+                                        )
+                                    )
+                                }",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             Text(
@@ -77,7 +83,7 @@ fun PersonalContactNotifierScreen(
                             )
                             Button(
                                 onClick = {
-                                    // Navigate to a screen to add personalized notification
+                                    navController.navigate("notification_settings/${contact.id}")
                                 },
                                 modifier = Modifier.padding(top = 8.dp)
                             ) {

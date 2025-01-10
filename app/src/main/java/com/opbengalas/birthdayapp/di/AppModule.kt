@@ -39,4 +39,10 @@ class AppModule {
     fun provideContactRepository(contactDao: ContactDao): ContactRepository {
         return ContactRepository(contactDao)
     }
+
+    @Provides
+    @Singleton
+    fun provideContext(@ApplicationContext context: Context): Context {
+        return context
+    }
 }

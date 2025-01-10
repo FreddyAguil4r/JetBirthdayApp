@@ -21,6 +21,7 @@ import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.ContactDetailScreen
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.EditContactScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.CalendarScreen
+import com.opbengalas.birthdayapp.screens.CalendarScreen.components.NotificationSettingsScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.components.PersonalContactNotifierScreen
 import com.opbengalas.birthdayapp.screens.MessageScreen.MessageGeneratorScreen
 import java.time.LocalDate
@@ -102,12 +103,31 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             )
         }
 
-        //MESSAGE GENERATOR
+        composable(
+            route = "notification_settings/{contactId}",
+            arguments = listOf(navArgument("contactId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val contactId = backStackEntry.arguments?.getInt("contactId") ?: return@composable
+            val contact = birthdayViewModel.listContact.collectAsState().value.find { it.id == contactId }
+
+            if (contact != null) {
+                NotificationSettingsScreen(
+                    contact = contact,
+                    onSave = { updatedContact ->
+                        birthdayViewModel.updateContact(updatedContact)
+                        navController.popBackStack()
+                    },
+                    onCancel = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+        //MESSAGE GENERATOR SCREEN
         composable("messageGenerator") {
             MessageGeneratorScreen()
         }
-
-
 
     }
 }

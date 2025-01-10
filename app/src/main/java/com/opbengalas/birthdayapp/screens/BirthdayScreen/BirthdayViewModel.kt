@@ -1,14 +1,18 @@
 package com.opbengalas.birthdayapp.screens.BirthdayScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.opbengalas.birthdayapp.models.Contact
 import com.opbengalas.birthdayapp.repository.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import javax.inject.Inject
@@ -32,7 +36,16 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> get() = _description
 
+    //Variables de notificaciones
+
+    private val _todayBirthdays = MutableStateFlow<List<Contact>>(emptyList())
+    val todayBirthdays: StateFlow<List<Contact>> get() = _todayBirthdays
+
+    private val _notifyContacts = MutableSharedFlow<Contact>(replay = 0)
+    val notifyContacts: SharedFlow<Contact> get() = _notifyContacts
+
     private var isAscending = true
+    private val today = LocalDate.now()
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     init {
@@ -40,6 +53,7 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
             repository.allContacts.collect { contacts ->
                 _listContact.value = contacts
                 updateSortedContacts()
+                updateTodayBirthdays()
             }
         }
     }
@@ -78,15 +92,16 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
                     birthdayDate = parsedDate,
                     description = _description.value
                 )
-                viewModelScope.launch {
-                    repository.insert(newContact)
-                }
+                viewModelScope.launch { repository.insert(newContact) }
                 _name.value = ""
                 _date.value = ""
                 _description.value = ""
             } catch (e: DateTimeParseException) {
-                // Handle invalid date format
+                Log.e("AddContact", "Formato de fecha inválido: ${e.message}")
+                // Muestra un mensaje al usuario
             }
+        } else {
+            Log.e("AddContact", "Nombre o fecha vacíos")
         }
     }
 
@@ -101,5 +116,16 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
     fun toggleSortOrder() {
         isAscending = !isAscending
         updateSortedContacts()
+    }
+
+    private fun updateTodayBirthdays() {
+        val todayBirthdays = _listContact.value.filter { contact ->
+            contact.birthdayDate.month == today.month && contact.birthdayDate.dayOfMonth == today.dayOfMonth
+        }
+        _todayBirthdays.value = todayBirthdays
+
+        viewModelScope.launch {
+            todayBirthdays.forEach { _notifyContacts.emit(it) }
+        }
     }
 }
