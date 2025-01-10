@@ -21,7 +21,9 @@ import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.ContactDetailScreen
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.EditContactScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.CalendarScreen
+import com.opbengalas.birthdayapp.screens.CalendarScreen.components.PersonalContactNotifierScreen
 import com.opbengalas.birthdayapp.screens.MessageScreen.MessageGeneratorScreen
+import java.time.LocalDate
 
 
 @Composable
@@ -29,16 +31,9 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
 
     NavHost(navController = navController, startDestination = "birthday") {
 
+        //CONTACTS SCREEN
         composable("birthday") {
             BirthdayScreen(navController = navController, birthdayViewModel = birthdayViewModel)
-        }
-
-        composable("calendar") {
-            CalendarScreen()
-        }
-
-        composable("messageGenerator") {
-            MessageGeneratorScreen()
         }
 
         composable(
@@ -87,6 +82,32 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
                 Log.e("AppNavigator", "Edit Contant not found with ID: $id")
             }
         }
+
+        //CALENDAR SCREEN
+        composable("calendar") {
+            CalendarScreen(navController = navController, birthdayViewModel = birthdayViewModel)
+        }
+
+        composable(
+            route = "personalContactNotifier/{selectedDate}",
+            arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val dateString = backStackEntry.arguments?.getString("selectedDate") ?: return@composable
+            val selectedDate = LocalDate.parse(dateString)
+
+            PersonalContactNotifierScreen(
+                selectedDate = selectedDate,
+                birthdayViewModel = birthdayViewModel,
+                navController = navController
+            )
+        }
+
+        //MESSAGE GENERATOR
+        composable("messageGenerator") {
+            MessageGeneratorScreen()
+        }
+
+
 
     }
 }
