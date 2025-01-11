@@ -60,7 +60,7 @@ fun CalendarScreen(
             currentMonth = currentMonth.value,
             contacts = contacts,
             onDayClick = { day ->
-                navController.navigate("personalContactNotifier/${day}")
+                navController.navigate("birthdayActionScreen/${day}")
             }
         )
 

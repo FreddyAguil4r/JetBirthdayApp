@@ -41,26 +41,11 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: return@composable
-            val contacts by birthdayViewModel.listContact.collectAsState()
-
-            if (contacts.isEmpty()) {
-                CircularProgressIndicator(modifier = Modifier.fillMaxSize())
-                return@composable
-            }
-
-            val contact = contacts.find { it.id == id }
-            if (contact != null) {
-                ContactDetailScreen(contact = contact, navController = navController)
-            } else {
-
-                Text(
-                    text = "Contact Detail not found with ID: $id",
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.Red,
-                    textAlign = TextAlign.Center
-                )
-                Log.e("AppNavigator", "Contact Detail not found with ID: $id")
-            }
+            ContactDetailScreen(
+                navController = navController,
+                birthdayViewModel = birthdayViewModel,
+                id = id
+            )
         }
 
         composable(
@@ -68,19 +53,11 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: return@composable
-            val contacts by birthdayViewModel.listContact.collectAsState()
-
-            if (contacts.isEmpty()) {
-                CircularProgressIndicator(modifier = Modifier.fillMaxSize())
-                return@composable
-            }
-
-            val contact = contacts.find { it.id == id }
-            if (contact != null) {
-                EditContactScreen(contact = contact, navController = navController)
-            } else {
-                Log.e("AppNavigator", "Edit Contant not found with ID: $id")
-            }
+            EditContactScreen(
+                navController = navController,
+                birthdayViewModel = birthdayViewModel,
+                id = id
+            )
         }
 
         //CALENDAR SCREEN
@@ -89,7 +66,7 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
         }
 
         composable(
-            route = "personalContactNotifier/{selectedDate}",
+            route = "birthdayActionScreen/{selectedDate}",
             arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
         ) { backStackEntry ->
             val dateString = backStackEntry.arguments?.getString("selectedDate") ?: return@composable

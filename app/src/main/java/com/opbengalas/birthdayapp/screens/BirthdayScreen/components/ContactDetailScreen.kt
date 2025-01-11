@@ -2,6 +2,7 @@ package com.opbengalas.birthdayapp.screens.BirthdayScreen.components
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,16 +11,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,9 +35,44 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ContactDetailScreen(contact: Contact, navController: NavHostController) {
-    val birthdayViewModel: BirthdayViewModel = hiltViewModel()
+fun ContactDetailScreen(
+    navController: NavHostController,
+    birthdayViewModel: BirthdayViewModel,
+    id: Int
+) {
+    val contacts by birthdayViewModel.listContact.collectAsState()
 
+    if (contacts.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    val contact = contacts.find { it.id == id }
+    if (contact != null) {
+        DetailContent(
+            contact = contact,
+            navController = navController,
+            birthdayViewModel = birthdayViewModel
+        )
+    } else {
+        Text(
+            text = "Contact Detail not found with ID: $id",
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Red,
+            textAlign = TextAlign.Center
+        )
+        Log.e("ContactDetailScreen", "Contact Detail not found with ID: $id")
+    }
+}
+
+@Composable
+private fun DetailContent(
+    contact: Contact,
+    navController: NavHostController,
+    birthdayViewModel: BirthdayViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,13 +109,9 @@ fun ContactDetailScreen(contact: Contact, navController: NavHostController) {
                 color = Color.Black
             )
         }
-
         Spacer(modifier = Modifier.weight(1f))
-
         Button(
-            onClick = {
-                navController.navigate("edit_contact/${contact.id}")
-            },
+            onClick = { navController.navigate("edit_contact/${contact.id}") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -103,10 +139,23 @@ fun ContactDetailScreen(contact: Contact, navController: NavHostController) {
 }
 
 @Composable
-fun EditContactScreen(contact: Contact, navController: NavHostController) {
-    val birthdayViewModel: BirthdayViewModel = hiltViewModel()
+fun EditContactScreen(
+    navController: NavHostController,
+    birthdayViewModel: BirthdayViewModel,
+    id: Int
+) {
+    val contact = birthdayViewModel.listContact.value.find { it.id == id } ?: return
+
     val (name, setName) = remember { mutableStateOf(contact.name) }
-    val (date, setDate) = remember { mutableStateOf(contact.birthdayDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))) }
+    val (date, setDate) = remember {
+        mutableStateOf(
+            contact.birthdayDate.format(
+                DateTimeFormatter.ofPattern(
+                    "dd/MM/yyyy"
+                )
+            )
+        )
+    }
     val (description, setDescription) = remember { mutableStateOf(contact.description) }
 
     Column(
@@ -135,7 +184,8 @@ fun EditContactScreen(contact: Contact, navController: NavHostController) {
             onClick = {
                 val updatedContact = contact.copy(
                     name = name,
-                    birthdayDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    birthdayDate = LocalDate
+                        .parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                     description = description
                 )
                 birthdayViewModel.updateContact(updatedContact)
