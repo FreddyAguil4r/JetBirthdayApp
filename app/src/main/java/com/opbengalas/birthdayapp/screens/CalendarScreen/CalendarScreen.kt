@@ -1,7 +1,6 @@
 package com.opbengalas.birthdayapp.screens.CalendarScreen
 
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -71,7 +70,6 @@ fun CalendarScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarHeader(
     currentMonth: LocalDate,

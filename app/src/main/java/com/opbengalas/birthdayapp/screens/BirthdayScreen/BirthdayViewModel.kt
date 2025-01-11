@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import javax.inject.Inject
@@ -53,7 +52,6 @@ class BirthdayViewModel @Inject constructor(
         context.getSharedPreferences("birthday_prefs", Context.MODE_PRIVATE)
     private val notifiedKey = "notified_contacts"
 
-    private var notifiedContacts = mutableSetOf<Int>()
     private var isAscending = true
     private val today = LocalDate.now()
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -108,7 +106,6 @@ class BirthdayViewModel @Inject constructor(
                 _description.value = ""
             } catch (e: DateTimeParseException) {
                 Log.e("AddContact", "Formato de fecha inválido: ${e.message}")
-                // Muestra un mensaje al usuario
             }
         } else {
             Log.e("AddContact", "Nombre o fecha vacíos")
@@ -145,21 +142,17 @@ class BirthdayViewModel @Inject constructor(
         }
     }
 
+    private fun getNotifiedContacts(): Set<Int> {
+        val notifiedIds = sharedPreferences.getStringSet(notifiedKey, emptySet()) ?: emptySet()
+        return notifiedIds.map { it.toInt() }.toSet()
+    }
+
     private fun saveNotifiedContact(contactId: Int) {
         val notifiedIds = getNotifiedContacts().toMutableSet()
         notifiedIds.add(contactId)
         sharedPreferences.edit()
             .putStringSet(notifiedKey, notifiedIds.map { it.toString() }.toSet())
             .apply()
-    }
-
-    private fun getNotifiedContacts(): Set<Int> {
-        val notifiedIds = sharedPreferences.getStringSet(notifiedKey, emptySet()) ?: emptySet()
-        return notifiedIds.map { it.toInt() }.toSet()
-    }
-
-    fun resetNotifiedContacts() {
-        sharedPreferences.edit().remove(notifiedKey).apply()
     }
 
 }

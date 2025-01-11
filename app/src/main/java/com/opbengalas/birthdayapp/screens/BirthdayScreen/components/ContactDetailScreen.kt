@@ -1,4 +1,4 @@
-package com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen
+package com.opbengalas.birthdayapp.screens.BirthdayScreen.components
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement

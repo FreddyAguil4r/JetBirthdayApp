@@ -10,19 +10,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayScreen
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.ContactScreen
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
-import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.ContactDetailScreen
-import com.opbengalas.birthdayapp.screens.BirthdayScreen.componentsBScreen.EditContactScreen
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.ContactDetailScreen
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.EditContactScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.CalendarScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.components.NotificationSettingsScreen
-import com.opbengalas.birthdayapp.screens.CalendarScreen.components.PersonalContactNotifierScreen
+import com.opbengalas.birthdayapp.screens.CalendarScreen.components.BirthdayActionsScreen
 import com.opbengalas.birthdayapp.screens.MessageScreen.MessageGeneratorScreen
 import java.time.LocalDate
 
@@ -34,7 +33,7 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
 
         //CONTACTS SCREEN
         composable("birthday") {
-            BirthdayScreen(navController = navController, birthdayViewModel = birthdayViewModel)
+            ContactScreen(navController = navController, birthdayViewModel = birthdayViewModel)
         }
 
         composable(
@@ -96,7 +95,7 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             val dateString = backStackEntry.arguments?.getString("selectedDate") ?: return@composable
             val selectedDate = LocalDate.parse(dateString)
 
-            PersonalContactNotifierScreen(
+            BirthdayActionsScreen(
                 selectedDate = selectedDate,
                 birthdayViewModel = birthdayViewModel,
                 navController = navController

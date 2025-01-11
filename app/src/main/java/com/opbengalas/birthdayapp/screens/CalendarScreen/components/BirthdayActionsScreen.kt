@@ -24,7 +24,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun PersonalContactNotifierScreen(
+fun BirthdayActionsScreen(
     selectedDate: LocalDate,
     birthdayViewModel: BirthdayViewModel,
     navController: NavHostController
@@ -87,7 +87,7 @@ fun PersonalContactNotifierScreen(
                                 },
                                 modifier = Modifier.padding(top = 8.dp)
                             ) {
-                                Text(text = "Add Notification")
+                                Text(text = "Customize notification")
                             }
                             Button(
                                 onClick = {
@@ -96,6 +96,14 @@ fun PersonalContactNotifierScreen(
                                 modifier = Modifier.padding(top = 8.dp)
                             ) {
                                 Text(text = "Add Gift Card")
+                            }
+                            Button(
+                                onClick = {
+                                    // Navigate to a screen to add personalized notification
+                                },
+                                modifier = Modifier.padding(top = 8.dp)
+                            ) {
+                                Text(text = "Send Gift")
                             }
                         }
                     }

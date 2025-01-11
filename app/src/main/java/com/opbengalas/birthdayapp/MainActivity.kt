@@ -1,7 +1,5 @@
 package com.opbengalas.birthdayapp
 
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.opbengalas.birthdayapp.navigation.AppNavigator
 import com.opbengalas.birthdayapp.ui.theme.BirthdayAppTheme
@@ -21,6 +17,7 @@ import com.opbengalas.birthdayapp.components.AppBottomNavigationBar
 import com.opbengalas.birthdayapp.components.AppTopBar
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import com.opbengalas.birthdayapp.service.NotificationService
+import com.opbengalas.birthdayapp.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -32,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestNotificationPermission()
+        PermissionUtils.requestNotificationPermission(this)
 
         setContent {
             BirthdayAppTheme {
@@ -54,23 +51,6 @@ class MainActivity : ComponentActivity() {
                             AppNavigator(navController, birthdayViewModel)
                         }
                     }
-                )
-            }
-        }
-
-    }
-
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    1001
                 )
             }
         }
