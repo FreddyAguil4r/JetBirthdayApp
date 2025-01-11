@@ -16,13 +16,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Singleton
 class NotificationService @Inject constructor(
+    private val notificationManager: NotificationManager,
     @ApplicationContext private val context: Context
 ) {
-    private val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     init {
         createNotificationChannel()
@@ -52,12 +50,11 @@ class NotificationService @Inject constructor(
 
         val builder = NotificationCompat.Builder(context, "birthday_channel")
             .setSmallIcon(R.drawable.ic_birthday)
-            .setContentTitle("🎉 ¡Feliz cumpleaños, ${contact.name}!")
+            .setContentTitle("🎉 ¡Feliz cumpleaños, ${contact.name}!🎉")
             .setContentText("Hoy es el cumpleaños de ${contact.name}.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .setNumber(1)
 
         notificationManager.notify(contact.id, builder.build())
     }
@@ -72,7 +69,7 @@ class NotificationService @Inject constructor(
 
         val builder = NotificationCompat.Builder(context, "birthday_channel")
             .setSmallIcon(R.drawable.ic_birthday)
-            .setContentTitle("🎉 ¡Feliz cumpleaños, ${contact.name}!")
+            .setContentTitle("🎉 ¡Feliz cumpleaños, ${contact.name}!🎉")
             .setContentText("Notificación personalizada para ${contact.name}.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
@@ -89,3 +86,4 @@ class NotificationService @Inject constructor(
         notificationManager.notify(contact.id, builder.build())
     }
 }
+

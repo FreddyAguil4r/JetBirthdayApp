@@ -1,5 +1,6 @@
 package com.opbengalas.birthdayapp.di
 
+import android.app.NotificationManager
 import android.content.Context
 import androidx.room.Room
 import com.opbengalas.birthdayapp.dao.ContactDao
@@ -44,5 +45,11 @@ class AppModule {
     @Singleton
     fun provideContext(@ApplicationContext context: Context): Context {
         return context
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationManager(@ApplicationContext context: Context): NotificationManager {
+        return context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 }

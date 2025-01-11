@@ -1,11 +1,13 @@
 package com.opbengalas.birthdayapp.screens.BirthdayScreen
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.opbengalas.birthdayapp.models.Contact
 import com.opbengalas.birthdayapp.repository.ContactRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,7 +20,10 @@ import java.time.format.DateTimeParseException
 import javax.inject.Inject
 
 @HiltViewModel
-class BirthdayViewModel @Inject constructor(private val repository: ContactRepository) :
+class BirthdayViewModel @Inject constructor(
+    private val repository: ContactRepository,
+    @ApplicationContext private val context: Context
+) :
     ViewModel() {
 
     private val _listContact = MutableStateFlow<List<Contact>>(emptyList())
@@ -44,6 +49,11 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
     private val _notifyContacts = MutableSharedFlow<Contact>(replay = 0)
     val notifyContacts: SharedFlow<Contact> get() = _notifyContacts
 
+    private val sharedPreferences =
+        context.getSharedPreferences("birthday_prefs", Context.MODE_PRIVATE)
+    private val notifiedKey = "notified_contacts"
+
+    private var notifiedContacts = mutableSetOf<Int>()
     private var isAscending = true
     private val today = LocalDate.now()
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -125,7 +135,31 @@ class BirthdayViewModel @Inject constructor(private val repository: ContactRepos
         _todayBirthdays.value = todayBirthdays
 
         viewModelScope.launch {
-            todayBirthdays.forEach { _notifyContacts.emit(it) }
+            val notifiedIds = getNotifiedContacts()
+            todayBirthdays.forEach { contact ->
+                if (!notifiedIds.contains(contact.id)) {
+                    _notifyContacts.emit(contact)
+                    saveNotifiedContact(contact.id)
+                }
+            }
         }
     }
+
+    private fun saveNotifiedContact(contactId: Int) {
+        val notifiedIds = getNotifiedContacts().toMutableSet()
+        notifiedIds.add(contactId)
+        sharedPreferences.edit()
+            .putStringSet(notifiedKey, notifiedIds.map { it.toString() }.toSet())
+            .apply()
+    }
+
+    private fun getNotifiedContacts(): Set<Int> {
+        val notifiedIds = sharedPreferences.getStringSet(notifiedKey, emptySet()) ?: emptySet()
+        return notifiedIds.map { it.toInt() }.toSet()
+    }
+
+    fun resetNotifiedContacts() {
+        sharedPreferences.edit().remove(notifiedKey).apply()
+    }
+
 }

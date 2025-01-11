@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.opbengalas.birthdayapp.repository.ContactRepository
 
+/*
 class BirthdayViewModelFactory(private val repository: ContactRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -12,4 +13,4 @@ class BirthdayViewModelFactory(private val repository: ContactRepository) :
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
-}
+}*/
