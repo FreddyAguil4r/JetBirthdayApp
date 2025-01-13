@@ -26,8 +26,8 @@ fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
         NavigationBarItem(
             selected = selectedTab == 2,
             onClick = { onTabSelected(2) },
-            icon = { Icon(painterResource(id = R.drawable.message), contentDescription = "Messages") },
-            label = { Text("Messages") }
+            icon = { Icon(painterResource(id = R.drawable.store_image), contentDescription = "Messages") },
+            label = { Text("Store") }
         )
     }
 }

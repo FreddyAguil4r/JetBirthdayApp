@@ -1,4 +1,4 @@
-package com.opbengalas.birthdayapp.screens.MessageScreen
+package com.opbengalas.birthdayapp.screens.VideoFeedScreen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun MessageGeneratorScreen(modifier: Modifier = Modifier) {
+fun VideoFeedScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
-        Text(text = "Message Screen", modifier = Modifier.align(Alignment.Center))
+        Text(text = "Video Screen", modifier = Modifier.align(Alignment.Center))
     }
 }

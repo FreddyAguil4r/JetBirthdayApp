@@ -19,7 +19,7 @@ fun AppBottomNavigationBar(navController: NavController) {
             when (index) {
                 0 -> navController.navigate("birthday") { launchSingleTop = true }
                 1 -> navController.navigate("calendar") { launchSingleTop = true }
-                2 -> navController.navigate("messageGenerator") { launchSingleTop = true }
+                2 -> navController.navigate("storeScreen") { launchSingleTop = true }
             }
         }
     )

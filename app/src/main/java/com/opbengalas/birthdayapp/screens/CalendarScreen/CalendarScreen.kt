@@ -4,27 +4,36 @@ package com.opbengalas.birthdayapp.screens.CalendarScreen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.opbengalas.birthdayapp.R
 import com.opbengalas.birthdayapp.models.Contact
+import com.opbengalas.birthdayapp.models.Gift
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -40,11 +49,13 @@ fun CalendarScreen(
 ) {
     val contacts by birthdayViewModel.listContact.collectAsState()
     val currentMonth = remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) }
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(scrollState),
     ) {
         CalendarHeader(
             currentMonth = currentMonth.value,
@@ -64,9 +75,11 @@ fun CalendarScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        Spacer(modifier = modifier.height(8.dp))
         ClosestBirthdaysSection(contacts = contacts)
+
+        Spacer(modifier = modifier.height(8.dp))
+        SuggestedGiftsSection()
     }
 }
 
@@ -135,46 +148,50 @@ fun CalendarGrid(
     val lastDayOfMonth = currentMonth.withDayOfMonth(currentMonth.lengthOfMonth())
     val days = generateCalendarDays(firstDayOfMonth, lastDayOfMonth)
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(days) { day ->
-            val isInCurrentMonth = day.month == currentMonth.month
-            val isFirstDayOfMonth = day == firstDayOfMonth
-            val isLastDayOfMonth = day == lastDayOfMonth
+    val chunkedDays = days.chunked(7)
 
-            val textColor = when {
-                isFirstDayOfMonth || isLastDayOfMonth -> MaterialTheme.colorScheme.onBackground
-                isInCurrentMonth -> MaterialTheme.colorScheme.onBackground
-                else -> Color.Gray
-            }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        chunkedDays.forEach { weekDays ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                weekDays.forEach { day ->
+                    val isInCurrentMonth = day.month == currentMonth.month
+                    val isFirstDayOfMonth = day == firstDayOfMonth
+                    val isLastDayOfMonth = day == lastDayOfMonth
 
-            val fontWeight = when {
-                isFirstDayOfMonth || isLastDayOfMonth -> FontWeight.Bold
-                else -> FontWeight.Normal
-            }
+                    val textColor = when {
+                        isFirstDayOfMonth || isLastDayOfMonth -> MaterialTheme.colorScheme.onBackground
+                        isInCurrentMonth -> MaterialTheme.colorScheme.onBackground
+                        else -> Color.Gray
+                    }
 
-            Surface(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { onDayClick(day) },
-                color = if (contacts.any { contact ->
-                        contact.birthdayDate.month == day.month && contact.birthdayDate.dayOfMonth == day.dayOfMonth
-                    }) MaterialTheme.colorScheme.primary else Color.Transparent,
-                shape = MaterialTheme.shapes.small
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = day.dayOfMonth.toString(),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = fontWeight
-                        ),
-                        textAlign = TextAlign.Center,
-                        color = textColor
-                    )
+                    val fontWeight = when {
+                        isFirstDayOfMonth || isLastDayOfMonth -> FontWeight.Bold
+                        else -> FontWeight.Normal
+                    }
+
+                    Surface(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clickable { onDayClick(day) },
+                        color = if (contacts.any { contact ->
+                                contact.birthdayDate.month == day.month && contact.birthdayDate.dayOfMonth == day.dayOfMonth
+                            }) MaterialTheme.colorScheme.primary else Color.Transparent,
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = day.dayOfMonth.toString(),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = fontWeight
+                                ),
+                                textAlign = TextAlign.Center,
+                                color = textColor
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -185,7 +202,9 @@ fun generateCalendarDays(firstDay: LocalDate, lastDay: LocalDate): List<LocalDat
     val firstDayOfWeek = firstDay.minusDays(firstDay.dayOfWeek.value.toLong() - 1)
     val lastDayOfWeek = lastDay.plusDays(7 - lastDay.dayOfWeek.value.toLong())
 
-    return (0 until ceil(ChronoUnit.DAYS.between(firstDayOfWeek, lastDayOfWeek).toDouble()).toInt()).map {
+    return (0 until ceil(
+        ChronoUnit.DAYS.between(firstDayOfWeek, lastDayOfWeek).toDouble()
+    ).toInt()).map {
         firstDayOfWeek.plusDays(it.toLong())
     }
 }
@@ -211,11 +230,11 @@ fun ClosestBirthdaysSection(contacts: List<Contact>) {
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-        LazyColumn(
+        Column( // Reemplazamos LazyColumn por Column
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(closestBirthdayContacts) { contact ->
+            closestBirthdayContacts.forEach{ contact -> // Reemplazamos el items por un forEach
                 BirthdayCard(contact = contact)
             }
         }
@@ -256,3 +275,116 @@ fun BirthdayCard(contact: Contact) {
         }
     }
 }
+
+@Composable
+fun SuggestedGiftsSection() {
+    val gifts = listOf(
+        Gift(
+            "Watch",
+            "https://m.media-amazon.com/images/I/41cHQmiqawL._AC_.jpg",
+            "Elegant wristwatch"
+        ),
+        Gift(
+            "Perfume",
+            "https://belcorpperu.vtexassets.com/arquivos/ids/309040-1600-auto?v=638545962284170000&width=1600&height=auto&aspect=true",
+            "Luxury fragrance"
+        ),
+        Gift(
+            "Book",
+            "https://dictionary.cambridge.org/es/images/thumb/book_noun_001_01679.jpg?version=6.0.43",
+            "Inspirational read"
+        ),
+        Gift(
+            "Headphones",
+            "https://imagedelivery.net/4fYuQyy-r8_rpBpcY7lH_A/falabellaPE/137414219_01/w=1500,h=1500,fit=pad",
+            "High-quality sound"
+        ),
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Suggested Gifts",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp)
+        ) {
+            items(gifts) { gift ->
+                GiftCard(gift = gift)
+            }
+        }
+    }
+}
+
+@Composable
+fun GiftCard(gift: Gift) {
+    var isLoading by remember { mutableStateOf(true) }
+
+    Card(
+        modifier = Modifier
+            .width(150.dp)
+            .height(250.dp)
+            .clickable { /* Future action: Handle gift click */ },
+        elevation = CardDefaults.cardElevation(4.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(gift.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    onLoading = { isLoading = true },
+                    onSuccess = { isLoading = false },
+                    onError = { isLoading = false },
+                    error = painterResource(R.drawable.error_image),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 2.dp
+                    )
+                }
+            }
+
+            Text(
+                text = gift.name,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = gift.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+

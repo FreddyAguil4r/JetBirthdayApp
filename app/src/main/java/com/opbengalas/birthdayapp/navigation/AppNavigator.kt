@@ -23,6 +23,8 @@ import com.opbengalas.birthdayapp.screens.CalendarScreen.CalendarScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.components.NotificationSettingsScreen
 import com.opbengalas.birthdayapp.screens.CalendarScreen.components.BirthdayActionsScreen
 import com.opbengalas.birthdayapp.screens.MessageScreen.MessageGeneratorScreen
+import com.opbengalas.birthdayapp.screens.StoreScreen.StoreScreen
+import com.opbengalas.birthdayapp.screens.VideoFeedScreen.VideoFeedScreen
 import java.time.LocalDate
 
 
@@ -69,7 +71,8 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             route = "birthdayActionScreen/{selectedDate}",
             arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
         ) { backStackEntry ->
-            val dateString = backStackEntry.arguments?.getString("selectedDate") ?: return@composable
+            val dateString =
+                backStackEntry.arguments?.getString("selectedDate") ?: return@composable
             val selectedDate = LocalDate.parse(dateString)
 
             BirthdayActionsScreen(
@@ -84,7 +87,8 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             arguments = listOf(navArgument("contactId") { type = NavType.IntType })
         ) { backStackEntry ->
             val contactId = backStackEntry.arguments?.getInt("contactId") ?: return@composable
-            val contact = birthdayViewModel.listContact.collectAsState().value.find { it.id == contactId }
+            val contact =
+                birthdayViewModel.listContact.collectAsState().value.find { it.id == contactId }
 
             if (contact != null) {
                 NotificationSettingsScreen(
@@ -100,8 +104,18 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
             }
         }
 
+        //STORE GENERATOR SCREEN
+        composable("storeScreen") {
+            StoreScreen()
+        }
+
+        //VIDEOFEED GENERATOR SCREEN
+        composable("videoFeedScreen") {
+            VideoFeedScreen()
+        }
+
         //MESSAGE GENERATOR SCREEN
-        composable("messageGenerator") {
+        composable("messageScreen") {
             MessageGeneratorScreen()
         }
 
