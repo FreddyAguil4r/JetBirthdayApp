@@ -31,10 +31,10 @@ import java.time.LocalDate
 @Composable
 fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayViewModel) {
 
-    NavHost(navController = navController, startDestination = "birthday") {
+    NavHost(navController = navController, startDestination = "contact_screen") {
 
         //CONTACTS SCREEN
-        composable("birthday") {
+        composable("contact_screen") {
             ContactScreen(navController = navController, birthdayViewModel = birthdayViewModel)
         }
 

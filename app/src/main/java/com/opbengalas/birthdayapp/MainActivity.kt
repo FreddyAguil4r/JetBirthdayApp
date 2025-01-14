@@ -1,6 +1,7 @@
 package com.opbengalas.birthdayapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -8,14 +9,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.opbengalas.birthdayapp.navigation.AppNavigator
 import com.opbengalas.birthdayapp.ui.theme.BirthdayAppTheme
 import androidx.navigation.compose.rememberNavController
 import com.opbengalas.birthdayapp.components.AppBottomNavigationBar
 import com.opbengalas.birthdayapp.components.AppTopBar
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.ContactTopBar
 import com.opbengalas.birthdayapp.service.NotificationService
 import com.opbengalas.birthdayapp.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,7 +49,17 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = { AppTopBar(navController, birthdayViewModel) },
+                    topBar = {
+                        val currentEntry = navController.currentBackStackEntryAsState().value
+                        val currentRoute = currentEntry?.destination?.route ?: ""
+
+                        Log.d("NavController", "Current Route: $currentRoute")
+
+                        when (currentRoute) {
+                            "contact_screen" -> ContactTopBar(navController, birthdayViewModel)
+                            else -> AppTopBar(navController, birthdayViewModel)
+                        }
+                    },
                     bottomBar = { AppBottomNavigationBar(navController) },
                     content = { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding)) {

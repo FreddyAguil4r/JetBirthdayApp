@@ -50,13 +50,11 @@ fun ContactScreen(
     val description by birthdayViewModel.description.collectAsState()
     val isDialogOpen = remember { mutableStateOf(false) }
 
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .padding(top = 4.dp)
+                .padding(top = 8.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.Start
