@@ -44,6 +44,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.storage)
+    implementation(libs.androidx.ui.text.google.fonts)
     val nav_version = "2.8.4"
     val lifecycle_version = "2.8.7"
     val room_version = "2.6.1"

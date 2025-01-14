@@ -14,19 +14,34 @@ fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
         NavigationBarItem(
             selected = selectedTab == 0,
             onClick = { onTabSelected(0) },
-            icon = { Icon(painterResource(id = R.drawable.home), contentDescription = "Home") },
-            label = { Text("Home") }
+            icon = {
+                Icon(
+                    painterResource(id = R.drawable.contact_image),
+                    contentDescription = "Contacts"
+                )
+            },
+            label = { Text("Contacts") }
         )
         NavigationBarItem(
             selected = selectedTab == 1,
             onClick = { onTabSelected(1) },
-            icon = { Icon(painterResource(id = R.drawable.calendar), contentDescription = "Calendar") },
+            icon = {
+                Icon(
+                    painterResource(id = R.drawable.calendar),
+                    contentDescription = "Calendar"
+                )
+            },
             label = { Text("Calendar") }
         )
         NavigationBarItem(
             selected = selectedTab == 2,
             onClick = { onTabSelected(2) },
-            icon = { Icon(painterResource(id = R.drawable.store_image), contentDescription = "Messages") },
+            icon = {
+                Icon(
+                    painterResource(id = R.drawable.store_image),
+                    contentDescription = "Store"
+                )
+            },
             label = { Text("Store") }
         )
     }

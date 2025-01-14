@@ -21,6 +21,8 @@ import com.opbengalas.birthdayapp.components.AppBottomNavigationBar
 import com.opbengalas.birthdayapp.components.AppTopBar
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.ContactTopBar
+import com.opbengalas.birthdayapp.screens.CalendarScreen.components.CalendarTopBar
+import com.opbengalas.birthdayapp.screens.StoreScreen.components.StoreTopBar
 import com.opbengalas.birthdayapp.service.NotificationService
 import com.opbengalas.birthdayapp.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,6 +59,8 @@ class MainActivity : ComponentActivity() {
 
                         when (currentRoute) {
                             "contact_screen" -> ContactTopBar(navController, birthdayViewModel)
+                            "calendar" -> CalendarTopBar(navController, birthdayViewModel)
+                            "storeScreen" -> StoreTopBar(navController, birthdayViewModel)
                             else -> AppTopBar(navController, birthdayViewModel)
                         }
                     },

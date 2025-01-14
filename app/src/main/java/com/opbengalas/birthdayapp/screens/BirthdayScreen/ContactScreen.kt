@@ -91,8 +91,8 @@ fun ContactScreen(
 
         FloatingActionButton(
             onClick = { isDialogOpen.value = true },
-            containerColor = Red,
-            contentColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -101,7 +101,7 @@ fun ContactScreen(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add Contact",
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 

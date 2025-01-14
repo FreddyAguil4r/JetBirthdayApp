@@ -1,4 +1,4 @@
-package com.opbengalas.birthdayapp.screens.BirthdayScreen.components
+package com.opbengalas.birthdayapp.screens.StoreScreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -9,25 +9,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -38,7 +33,7 @@ import com.opbengalas.birthdayapp.ui.theme.Red
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContactTopBar(
+fun StoreTopBar(
     navController: NavController,
     birthdayViewModel: BirthdayViewModel
 ) {
@@ -47,46 +42,38 @@ fun ContactTopBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(Red)
+            .padding(WindowInsets.statusBars.asPaddingValues())
     ) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Contacts",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            },
-            actions = {
-                IconButton(onClick = { birthdayViewModel.toggleSortOrder() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.sort),
-                        contentDescription = "Sort Options",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.largeTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.primary,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Store",
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.White,
+                modifier = Modifier.weight(1f)
             )
-        )
+        }
 
         TextField(
             value = searchQuery.value,
             onValueChange = { searchQuery.value = it },
-            placeholder = { Text("Search contacts", color = Color.Gray) },
+            placeholder = { Text("Search", color = Color.Gray) },
             singleLine = true,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Search contacts"
+                    contentDescription = "Buscar"
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clip(RoundedCornerShape(16.dp)),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
@@ -95,4 +82,3 @@ fun ContactTopBar(
         )
     }
 }
-
