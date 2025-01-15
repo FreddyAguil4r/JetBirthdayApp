@@ -12,7 +12,7 @@ fun AppBottomNavigationBar(navController: NavController) {
         selectedTab = when (currentDestination?.route) {
             "contact_screen" -> 0
             "calendar" -> 1
-            "messageGenerator" -> 2
+            "storeScreen" -> 2
             "videoFeedScreen" -> 3
             else -> 0
         },
