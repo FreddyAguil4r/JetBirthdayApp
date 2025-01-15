@@ -44,5 +44,16 @@ fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
             },
             label = { Text("Store") }
         )
+        NavigationBarItem(
+            selected = selectedTab == 3,
+            onClick = { onTabSelected(3) },
+            icon = {
+                Icon(
+                    painterResource(id = R.drawable.video_image),
+                    contentDescription = "Video"
+                )
+            },
+            label = { Text("Joys") }
+        )
     }
 }

@@ -45,9 +45,15 @@ android {
 dependencies {
     implementation(libs.androidx.storage)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
     val nav_version = "2.8.4"
     val lifecycle_version = "2.8.7"
     val room_version = "2.6.1"
+
+
+    implementation ("com.google.accompanist:accompanist-pager:0.30.1")
+    implementation ("androidx.compose.foundation:foundation:1.5.0")
 
     //Imagenes(Coil)
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")

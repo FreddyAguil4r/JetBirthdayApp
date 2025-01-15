@@ -7,12 +7,12 @@ import java.time.LocalDate
 @Entity(tableName = "contacts")
 data class Contact(
     @PrimaryKey(autoGenerate = true)
-    val id : Int = 0,
+    val id: Int = 0,
     val name: String,
     val birthdayDate: LocalDate,
-    val description : String = "",
+    val description: String = "",
     val notificationTone: String? = null,
     val notificationDuration: Int = 0,
-    val notificationRepeat: Boolean = false
+    val notificationRepeat: Boolean = false,
+    val videoUrl: String? = null // Campo opcional para video
 )
-

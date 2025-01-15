@@ -13,6 +13,7 @@ fun AppBottomNavigationBar(navController: NavController) {
             "contact_screen" -> 0
             "calendar" -> 1
             "messageGenerator" -> 2
+            "videoFeedScreen" -> 3
             else -> 0
         },
         onTabSelected = { index ->
@@ -20,6 +21,7 @@ fun AppBottomNavigationBar(navController: NavController) {
                 0 -> navController.navigate("contact_screen") { launchSingleTop = true }
                 1 -> navController.navigate("calendar") { launchSingleTop = true }
                 2 -> navController.navigate("storeScreen") { launchSingleTop = true }
+                3 -> navController.navigate("videoFeedScreen") { launchSingleTop = true }
             }
         }
     )

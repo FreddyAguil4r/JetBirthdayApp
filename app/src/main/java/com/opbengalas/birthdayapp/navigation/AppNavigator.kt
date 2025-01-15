@@ -25,11 +25,16 @@ import com.opbengalas.birthdayapp.screens.CalendarScreen.components.BirthdayActi
 import com.opbengalas.birthdayapp.screens.MessageScreen.MessageGeneratorScreen
 import com.opbengalas.birthdayapp.screens.StoreScreen.StoreScreen
 import com.opbengalas.birthdayapp.screens.VideoFeedScreen.VideoFeedScreen
+import com.opbengalas.birthdayapp.screens.VideoFeedScreen.VideoFeedViewModel
 import java.time.LocalDate
 
 
 @Composable
-fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayViewModel) {
+fun AppNavigator(
+    navController: NavHostController,
+    birthdayViewModel: BirthdayViewModel,
+    videoFeedViewModel: VideoFeedViewModel
+) {
 
     NavHost(navController = navController, startDestination = "contact_screen") {
 
@@ -111,7 +116,7 @@ fun AppNavigator(navController: NavHostController, birthdayViewModel: BirthdayVi
 
         //VIDEOFEED GENERATOR SCREEN
         composable("videoFeedScreen") {
-            VideoFeedScreen()
+            VideoFeedScreen(navController = navController, videoFeedViewModel = videoFeedViewModel)
         }
 
         //MESSAGE GENERATOR SCREEN

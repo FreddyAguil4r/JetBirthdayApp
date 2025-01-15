@@ -1,4 +1,4 @@
-package com.opbengalas.birthdayapp.screens.CalendarScreen.components
+package com.opbengalas.birthdayapp.screens.VideoFeedScreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -11,13 +11,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
+import com.opbengalas.birthdayapp.screens.VideoFeedScreen.VideoFeedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarTopBar(
+fun VideoFeedTopBar(
     navController: NavController,
-    birthdayViewModel: BirthdayViewModel
+    videoFeedViewModel: VideoFeedViewModel
 ) {
     Column(
         modifier = Modifier
@@ -27,7 +27,7 @@ fun CalendarTopBar(
         TopAppBar(
             title = {
                 Text(
-                    text = "Calendar",
+                    text = "Video",
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onPrimary
                 )

@@ -23,6 +23,9 @@ import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.ContactTopBar
 import com.opbengalas.birthdayapp.screens.CalendarScreen.components.CalendarTopBar
 import com.opbengalas.birthdayapp.screens.StoreScreen.components.StoreTopBar
+import com.opbengalas.birthdayapp.screens.VideoFeedScreen.VideoFeedScreen
+import com.opbengalas.birthdayapp.screens.VideoFeedScreen.VideoFeedViewModel
+import com.opbengalas.birthdayapp.screens.VideoFeedScreen.components.VideoFeedTopBar
 import com.opbengalas.birthdayapp.service.NotificationService
 import com.opbengalas.birthdayapp.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +45,7 @@ class MainActivity : ComponentActivity() {
             BirthdayAppTheme {
                 val navController = rememberNavController()
                 val birthdayViewModel: BirthdayViewModel = hiltViewModel()
+                val videoViewModel : VideoFeedViewModel = hiltViewModel()
 
                 LaunchedEffect(Unit) {
                     birthdayViewModel.notifyContacts.collect { contact ->
@@ -61,13 +65,14 @@ class MainActivity : ComponentActivity() {
                             "contact_screen" -> ContactTopBar(navController, birthdayViewModel)
                             "calendar" -> CalendarTopBar(navController, birthdayViewModel)
                             "storeScreen" -> StoreTopBar(navController, birthdayViewModel)
+                            "videoFeedScreen" -> VideoFeedTopBar(navController, videoViewModel)
                             else -> AppTopBar(navController, birthdayViewModel)
                         }
                     },
                     bottomBar = { AppBottomNavigationBar(navController) },
                     content = { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding)) {
-                            AppNavigator(navController, birthdayViewModel)
+                            AppNavigator(navController, birthdayViewModel,videoViewModel)
                         }
                     }
                 )
