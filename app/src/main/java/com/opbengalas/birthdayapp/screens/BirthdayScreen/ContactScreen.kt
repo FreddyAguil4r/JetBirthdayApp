@@ -218,6 +218,9 @@ fun AddContactDialog(
                         label = { Text("Name", style = MaterialTheme.typography.bodyLarge) },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    //Text(text = "Hello" , modifier = Modifier.clickable {
+                    //    throw RuntimeException("Test CrashLytics")
+                    //})
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -263,6 +266,7 @@ fun AddContactDialog(
                     Text("Cancel", style = MaterialTheme.typography.titleSmall)
                 }
             }
+
         )
     }
 
