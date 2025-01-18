@@ -1,6 +1,8 @@
 package com.opbengalas.birthdayapp.screens.BirthdayScreen.components
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,13 +26,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil3.compose.rememberAsyncImagePainter
 import com.opbengalas.birthdayapp.models.Contact
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
 import java.time.LocalDate
@@ -77,14 +85,32 @@ private fun DetailContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(
+                id = LocalContext.current.resources.getIdentifier(
+                    contact.profileImage,
+                    "drawable",
+                    LocalContext.current.packageName
+                )
+            ),
+            contentDescription = "Profile Image",
+            modifier = Modifier
+                .size(128.dp)
+                .clip(CircleShape)
+                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+            contentScale = ContentScale.Crop
+        )
+
         Text(
             text = contact.name,
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.Black
+            color = Color.Black,
+            modifier = Modifier.padding(top = 8.dp)
         )
+
         Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Date:",
@@ -97,6 +123,7 @@ private fun DetailContent(
                 color = Color.Black
             )
         }
+
         Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Description:",
@@ -115,10 +142,15 @@ private fun DetailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
-            Text("Editar", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text(
+                "Edit Contact",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
+
         Button(
             onClick = {
                 if (contact.id != 0) {
@@ -131,9 +163,13 @@ private fun DetailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
         ) {
-            Text("Eliminate", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text(
+                "Delete Contact",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.opbengalas.birthdayapp.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -26,34 +29,24 @@ import com.opbengalas.birthdayapp.ui.theme.White
 @Composable
 fun AppTopBar(navController: NavController, birthdayViewModel: BirthdayViewModel) {
 
-    val searchQuery = remember { mutableStateOf("") }
-
-    TopAppBar(
-        title = {
-            SearchBar(
-                query = searchQuery.value,
-                onQueryChange = { searchQuery.value = it },
-                onSearch = { },
-                active = false,
-                onActiveChange = { },
-                placeholder = { Text("Search contacts") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {}
-        },
-        actions = {
-            IconButton(onClick = { birthdayViewModel.toggleSortOrder() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.sort),
-                    contentDescription = "Sort Options"
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = " ",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Red,
-            titleContentColor = White
+            },
+            colors = TopAppBarDefaults.largeTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            )
         )
-    )
+    }
 }
 

@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.opbengalas.birthdayapp.components.AppBottomNavigationBar
 import com.opbengalas.birthdayapp.components.AppTopBar
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.BirthdayViewModel
+import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.ContactDetailTopBar
 import com.opbengalas.birthdayapp.screens.BirthdayScreen.components.ContactTopBar
 import com.opbengalas.birthdayapp.screens.CalendarScreen.components.CalendarTopBar
 import com.opbengalas.birthdayapp.screens.StoreScreen.components.StoreTopBar
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         val currentEntry = navController.currentBackStackEntryAsState().value
                         val currentRoute = currentEntry?.destination?.route ?: ""
+                        val id = currentEntry?.arguments?.getInt("id")
 
                         Log.d("NavController", "Current Route: $currentRoute")
 
@@ -66,6 +68,7 @@ class MainActivity : ComponentActivity() {
                             "calendar" -> CalendarTopBar(navController, birthdayViewModel)
                             "storeScreen" -> StoreTopBar(navController, birthdayViewModel)
                             "videoFeedScreen" -> VideoFeedTopBar(navController, videoViewModel)
+                            "contact_detail/{id}" -> ContactDetailTopBar(navController)
                             else -> AppTopBar(navController, birthdayViewModel)
                         }
                     },
