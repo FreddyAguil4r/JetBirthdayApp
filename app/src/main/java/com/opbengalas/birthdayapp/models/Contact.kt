@@ -10,6 +10,7 @@ data class Contact(
     val id: Int = 0,
     val name: String,
     val birthdayDate: LocalDate,
+    val phoneNumber: String = "",
     val description: String = "",
     val notificationTone: String? = null,
     val notificationDuration: Int = 0,

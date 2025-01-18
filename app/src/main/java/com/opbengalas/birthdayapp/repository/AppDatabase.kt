@@ -7,8 +7,8 @@ import com.opbengalas.birthdayapp.dao.ContactDao
 import com.opbengalas.birthdayapp.models.Contact
 import com.opbengalas.birthdayapp.util.Converters
 
-@Database(entities = [Contact::class], version = 1, exportSchema = false)
-@TypeConverters(Converters::class) // Necesario para LocalDate
+@Database(entities = [Contact::class], version = 2, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDao
 }

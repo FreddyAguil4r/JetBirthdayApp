@@ -40,6 +40,9 @@ class BirthdayViewModel @Inject constructor(
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> get() = _description
 
+    private val _phoneNumber = MutableStateFlow("")
+    val phoneNumber: StateFlow<String> get() = _phoneNumber
+
     //Variables de notificaciones
 
     private val _todayBirthdays = MutableStateFlow<List<Contact>>(emptyList())
@@ -78,6 +81,10 @@ class BirthdayViewModel @Inject constructor(
         _description.value = newDescription
     }
 
+    fun addContactPhoneNumber(newPhoneNumber: String){
+        _phoneNumber.value = newPhoneNumber
+    }
+
     fun deleteContact(contact: Contact) {
         viewModelScope.launch {
             repository.delete(contact)
@@ -98,12 +105,14 @@ class BirthdayViewModel @Inject constructor(
                 val newContact = Contact(
                     name = _name.value,
                     birthdayDate = parsedDate,
+                    phoneNumber = _phoneNumber.value,
                     description = _description.value
                 )
                 viewModelScope.launch { repository.insert(newContact) }
                 _name.value = ""
                 _date.value = ""
                 _description.value = ""
+                _phoneNumber.value = ""
             } catch (e: DateTimeParseException) {
                 Log.e("AddContact", "Formato de fecha inválido: ${e.message}")
             }
