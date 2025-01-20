@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -57,9 +58,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import java.time.LocalDate
+import java.time.Period
 import java.time.format.DateTimeFormatter
 
 
@@ -75,6 +79,7 @@ fun ContactScreen(
     val description by birthdayViewModel.description.collectAsState()
     val phoneNumber by birthdayViewModel.phoneNumber.collectAsState()
     val isDialogOpen = remember { mutableStateOf(false) }
+    val isAlertNoContactNumberDialogOpen = remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -106,6 +111,9 @@ fun ContactScreen(
                             description = birthday.description,
                             imageResource = birthday.profileImage,
                             phoneNumber = birthday.phoneNumber,
+                            onMissingPhoneNumber = {
+                                isAlertNoContactNumberDialogOpen.value = true
+                            },
                             modifier = Modifier.clickable {
                                 navController.navigate("contact_detail/${birthday.id}")
                             }
@@ -117,7 +125,7 @@ fun ContactScreen(
 
         FloatingActionButton(
             onClick = { isDialogOpen.value = true },
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -143,6 +151,8 @@ fun ContactScreen(
             onPhoneNumberChange = { birthdayViewModel.addContactPhoneNumber(it) },
             onAddContact = { birthdayViewModel.addBirthdayFromInput() }
         )
+
+        MissingPhoneNumberDialog(isAlertNoContactNumberDialogOpen)
     }
 }
 
@@ -153,9 +163,20 @@ fun ContactCard(
     description: String,
     imageResource: String,
     phoneNumber: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMissingPhoneNumber: () -> Unit
 ) {
+    val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    val birthday = runCatching { LocalDate.parse(date, dateFormatter) }.getOrNull()
+    val currentDate = LocalDate.now()
+    val age = birthday?.let {
+        Period.between(it, currentDate).years
+    } ?: 0
+
     ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -170,21 +191,33 @@ fun ContactCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-
-                Image(
-                    painter = painterResource(
-                        id = LocalContext.current.resources.getIdentifier(
-                            imageResource,
-                            "drawable",
-                            LocalContext.current.packageName
-                        )
-                    ),
-                    contentDescription = "Contact Image",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary)
-                )
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    Image(
+                        painter = painterResource(
+                            id = LocalContext.current.resources.getIdentifier(
+                                imageResource,
+                                "drawable",
+                                LocalContext.current.packageName
+                            )
+                        ),
+                        contentDescription = "Contact Image",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondary)
+                    )
+                    Text(
+                        text = "$age",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .offset(y = 6.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -194,13 +227,13 @@ fun ContactCard(
                 ) {
                     Text(
                         text = name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Black
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = date,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -208,12 +241,21 @@ fun ContactCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CallButton(phoneNumber = phoneNumber) // Botón para llamada
-                    IconButton(onClick = { /* Lógica para enviar mensaje */ }) {
+                    CallButton(
+                        phoneNumber = phoneNumber,
+                        onMissingPhoneNumber = onMissingPhoneNumber
+                    )
+                    IconButton(
+                        onClick = {
+                            if (phoneNumber.isEmpty()) {
+                                onMissingPhoneNumber()
+                            }
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.MailOutline,
                             contentDescription = "Message",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = if (phoneNumber.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -224,15 +266,14 @@ fun ContactCard(
             if (description.isNotEmpty()) {
                 Text(
                     text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray,
-                    modifier = Modifier.padding(start = 80.dp) // Alinea debajo de la imagen
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 80.dp)
                 )
             }
         }
     }
 }
-
 
 @Composable
 fun AddContactDialog(
@@ -368,7 +409,7 @@ fun DatePickerModal(
 }
 
 @Composable
-fun CallButton(phoneNumber: String) {
+fun CallButton(phoneNumber: String, onMissingPhoneNumber: () -> Unit) {
     val context = LocalContext.current
     val callPermissionState = remember { mutableStateOf(false) }
 
@@ -390,10 +431,11 @@ fun CallButton(phoneNumber: String) {
 
     LaunchedEffect(callPermissionState.value) {
         if (callPermissionState.value) {
+
             val formattedPhoneNumber = if (phoneNumber.startsWith("+51")) {
                 phoneNumber
             } else {
-                "+51$phoneNumber" // Asegurar que el prefijo de Perú esté presente
+                "+51$phoneNumber"
             }
 
             val intent = Intent(Intent.ACTION_CALL).apply {
@@ -408,17 +450,43 @@ fun CallButton(phoneNumber: String) {
             } else {
                 Toast.makeText(context, "Call permission not granted", Toast.LENGTH_SHORT).show()
             }
-            callPermissionState.value = false // Reset state after attempting a call
+
+            callPermissionState.value = false
         }
+
     }
 
     IconButton(
-        onClick = { checkAndRequestCallPermission() }
+        onClick = {
+            if (phoneNumber.isEmpty()) {
+                onMissingPhoneNumber()
+            } else {
+                checkAndRequestCallPermission()
+            }
+        }
     ) {
         Icon(
             imageVector = Icons.Default.Phone,
             contentDescription = "Call",
-            tint = MaterialTheme.colorScheme.primary
+            tint = if (phoneNumber.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun MissingPhoneNumberDialog(
+    isAlertNoContactNumberDialogOpen: MutableState<Boolean>
+) {
+    if (isAlertNoContactNumberDialogOpen.value) {
+        AlertDialog(
+            onDismissRequest = { isAlertNoContactNumberDialogOpen.value = false },
+            title = { Text("Número de contacto faltante") },
+            text = { Text("Por favor, añade un número de contacto para usar estas funciones.") },
+            confirmButton = {
+                TextButton(onClick = { isAlertNoContactNumberDialogOpen.value = false }) {
+                    Text("OK")
+                }
+            }
         )
     }
 }

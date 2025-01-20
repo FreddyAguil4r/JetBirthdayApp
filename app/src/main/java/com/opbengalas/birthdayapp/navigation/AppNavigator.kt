@@ -109,17 +109,17 @@ fun AppNavigator(
             }
         }
 
-        //STORE GENERATOR SCREEN
+        //STORE SCREEN
         composable("storeScreen") {
             StoreScreen()
         }
 
-        //VIDEOFEED GENERATOR SCREEN
+        //VIDEOFEED SCREEN
         composable("videoFeedScreen") {
             VideoFeedScreen(navController = navController, videoFeedViewModel = videoFeedViewModel)
         }
 
-        //MESSAGE GENERATOR SCREEN
+        //MESSAGE SCREEN
         composable("messageScreen") {
             MessageGeneratorScreen()
         }

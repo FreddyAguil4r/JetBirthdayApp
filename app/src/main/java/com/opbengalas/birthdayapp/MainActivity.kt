@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = { AppBottomNavigationBar(navController) },
                     content = { innerPadding ->
-                        Box(modifier = Modifier.padding(innerPadding)) {
+                        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                             AppNavigator(navController, birthdayViewModel,videoViewModel)
                         }
                     }
