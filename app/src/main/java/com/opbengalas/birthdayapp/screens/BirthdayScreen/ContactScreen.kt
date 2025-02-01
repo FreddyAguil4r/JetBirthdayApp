@@ -2,10 +2,15 @@ package com.opbengalas.birthdayapp.screens.BirthdayScreen
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +22,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,6 +46,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +55,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,11 +63,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
+import com.opbengalas.birthdayapp.R
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
@@ -149,6 +158,7 @@ fun ContactScreen(
             onDateChange = { birthdayViewModel.addContactDate(it) },
             onDescriptionChange = { birthdayViewModel.addContactDescription(it) },
             onPhoneNumberChange = { birthdayViewModel.addContactPhoneNumber(it) },
+            onProfileImageChange = { birthdayViewModel.updateProfileImage(it) },
             onAddContact = { birthdayViewModel.addBirthdayFromInput() }
         )
 
@@ -172,6 +182,8 @@ fun ContactCard(
     val age = birthday?.let {
         Period.between(it, currentDate).years
     } ?: 0
+    val context = LocalContext.current
+    val defaultImage = painterResource(id = R.drawable.default_profile_image)
 
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors(
@@ -191,31 +203,27 @@ fun ContactCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
-                    contentAlignment = Alignment.BottomCenter,
-                    modifier = Modifier.size(64.dp)
-                ) {
-                    Image(
-                        painter = painterResource(
-                            id = LocalContext.current.resources.getIdentifier(
-                                imageResource,
-                                "drawable",
-                                LocalContext.current.packageName
-                            )
-                        ),
-                        contentDescription = "Contact Image",
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.secondary)
-                    )
+                    ) {
+                        Image(
+                            painter = if (!imageResource.isNullOrEmpty()) rememberAsyncImagePainter(
+                                imageResource
+                            ) else defaultImage,
+                            contentDescription = "Contact Image",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "$age",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .offset(y = 6.dp)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -268,6 +276,8 @@ fun ContactCard(
                     text = description,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(start = 80.dp)
                 )
             }
@@ -275,6 +285,7 @@ fun ContactCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactDialog(
     isOpen: MutableState<Boolean>,
@@ -286,9 +297,54 @@ fun AddContactDialog(
     onDateChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onPhoneNumberChange: (String) -> Unit,
+    onProfileImageChange: (String) -> Unit,
     onAddContact: () -> Unit
 ) {
     val isDatePickerOpen = remember { mutableStateOf(false) }
+    val wordLimit = 150
+    val words = description.split("\\s+".toRegex()).filter { it.isNotBlank() }
+    val hasReachedLimit = words.size >= wordLimit
+    val context = LocalContext.current
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            imageUri = it
+            onProfileImageChange(it.toString())
+        }
+    }
+
+    val generateImageUri: () -> Uri? = {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+        }
+        context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && imageUri != null) {
+            onProfileImageChange(imageUri.toString())
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val newUri = generateImageUri(context)
+            if (newUri != null) {
+                imageUri = newUri
+                cameraLauncher.launch(newUri)
+            }
+        } else {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     if (isOpen.value) {
         AlertDialog(
@@ -302,7 +358,51 @@ fun AddContactDialog(
                         label = { Text("Name", style = MaterialTheme.typography.bodyLarge) },
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    Text("Select Profile Image:")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray)
+                                .clickable { galleryLauncher.launch("image/*") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (imageUri != null) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(imageUri),
+                                    contentDescription = "Selected Image",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Text("Tap to select")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = {
+                            if (ContextCompat.checkSelfPermission(
+                                    context,
+                                    android.Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                val newUri = generateImageUri(context)
+                                if (newUri != null) {
+                                    imageUri = newUri
+                                    cameraLauncher.launch(newUri)
+                                }
+                            } else {
+                                permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                            }
+                        }) {
+                            Text("Take Photo")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -317,7 +417,9 @@ fun AddContactDialog(
                             Text("Pick Date")
                         }
                     }
+
                     Spacer(modifier = Modifier.height(8.dp))
+
                     OutlinedTextField(
                         value = phoneNumber,
                         onValueChange = onPhoneNumberChange,
@@ -332,16 +434,38 @@ fun AddContactDialog(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
+
                     OutlinedTextField(
                         value = description,
-                        onValueChange = onDescriptionChange,
+                        onValueChange = { newValue ->
+                            val newWords =
+                                newValue.split("\\s+".toRegex()).filter { it.isNotBlank() }
+                            if (newWords.size <= wordLimit) {
+                                onDescriptionChange(newValue)
+                            }
+                        },
                         label = { Text("Description", style = MaterialTheme.typography.bodyLarge) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp),
                         maxLines = 6,
-                        singleLine = false
+                        singleLine = false,
+                        placeholder = { Text("Enter a brief description (max 150 words)") },
+                        isError = hasReachedLimit,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = if (hasReachedLimit) Color.Red else MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = if (hasReachedLimit) Color.Red else Color.Gray
+                        )
                     )
+
+                    if (hasReachedLimit) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "You have reached the word limit of $wordLimit.",
+                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Red),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -378,6 +502,14 @@ fun AddContactDialog(
             onDismiss = { isDatePickerOpen.value = false }
         )
     }
+}
+
+fun generateImageUri(context: Context): Uri? {
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+    }
+    return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -474,6 +606,27 @@ fun CallButton(phoneNumber: String, onMissingPhoneNumber: () -> Unit) {
 }
 
 @Composable
+fun AddImageButton(
+    onImagePicked: (Uri) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let { onImagePicked(it) }
+        }
+    )
+
+    Button(
+        onClick = { launcher.launch("image/*") },
+        modifier = modifier
+    ) {
+        Text("Añadir Imagen")
+    }
+}
+
+@Composable
 fun MissingPhoneNumberDialog(
     isAlertNoContactNumberDialogOpen: MutableState<Boolean>
 ) {
@@ -490,5 +643,7 @@ fun MissingPhoneNumberDialog(
         )
     }
 }
+
+
 
 

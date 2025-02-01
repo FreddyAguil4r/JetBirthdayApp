@@ -15,6 +15,6 @@ data class Contact(
     val notificationTone: String? = null,
     val notificationDuration: Int = 0,
     val notificationRepeat: Boolean = false,
-    val videoUrl: String? = null, // Campo opcional para video
+    val videoUrl: String? = null,
     val profileImage: String = "default_profile_image"
 )
